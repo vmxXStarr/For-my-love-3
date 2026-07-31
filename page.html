@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I Love You! — 3D Heart Ribbon Animation</title>
+  <meta name="description" content="A breathtaking 3D heart ribbon formed entirely from the text 'I Love You!', featuring smooth motion animation and interactive glassmorphic customization." />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+    :root {
+      color-scheme: dark;
+      --bg-color: #030001;
+      --accent-color: #ff4d8d;
+      --panel-bg: rgba(255, 255, 255, 0.05);
+      --panel-border: rgba(255, 255, 255, 0.1);
+      --text-color: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-color);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Canvas styling */
+    #heartCanvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #1a0008 0%, #030001 100%);
+      cursor: grab;
+    }
+
+    #heartCanvas:active {
+      cursor: grabbing;
+    }
+
+    /* Glassmorphic UI Overlay */
+    .ui-container {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 90%;
+      max-width: 600px;
+      pointer-events: none;
+    }
+
+    .toggle-btn {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--panel-border);
+      padding: 10px 24px;
+      border-radius: 30px;
+      color: var(--text-color);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+
+    .control-panel {
+      pointer-events: auto;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      padding: 24px;
+      width: 100%;
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .control-panel.hidden {
+      opacity: 0;
+      transform: translateY(20px);
+      pointer-events: none;
+      height: 0;
+      padding: 0;
+      overflow: hidden;
+      border: none;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 12px;
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff 0%, #ff7db0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-value {
+      color: var(--accent-color);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      outline: none;
+      accent-color: var(--accent-color);
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent-color);
+      transition: transform 0.1s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    input[type="text"] {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-color);
+    }
+
+    .theme-selector {
+      display: flex;
+      gap: 10px;
+    }
+
+    .theme-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .theme-btn.active {
+      border-color: var(--accent-color);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 12px rgba(255, 77, 141, 0.3);
+    }
+
+    /* Floating instructions overlay */
+    .instruction-tip {
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--panel-bg);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--panel-border);
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      pointer-events: none;
+      animation: fadeOut 6s forwards;
+    }
+
+    @keyframes fadeOut {
+      0%, 80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="instruction-tip">✨ Drag to rotate • Customize below</div>
+
+  <canvas id="heartCanvas" aria-label="3D Heart Ribbon made of I Love You text"></canvas>
+
+  <div class="ui-container">
+    <button class="toggle-btn" id="toggleBtn" hidden style="display: none;">
+      <span>✨ Customize Ribbon</span>
+    </button>
+
+    <div class="control-panel hidden" id="controlPanel">
+      <div class="panel-header">
+        <h1 class="panel-title">Ribbon Settings</h1>
+      </div>
+
+      <div class="control-grid">
+        <div class="control-group">
+          <label class="control-label">
+            <span>Custom Phrase</span>
+          </label>
+          <input type="text" id="phraseInput" value="I Love You!" maxlength="30" />
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">
+            <span>Color Theme</span>
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">
+            <span>Animation Speed</span>
+            <span class="control-value" id="speedVal">1.0x</span>
+          </label>
+          <input type="range" id="speedSlider" min="0" max="3" step="0.1" value="1.0" />
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">
+            <span>Horizontal Rotation</span>
+            <span class="control-value" id="rotVal">-58°</span>
+          </label>
+          <input type="range" id="rotSlider" min="-90" max="90" step="1" value="-58" />
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">
+            <span>Glow Intensity</span>
+            <span class="control-value" id="glowVal">100%</span>
+          </label>
+          <input type="range" id="glowSlider" min="0" max="200" step="10" value="100" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // UI Elements
+    const toggleBtn = document.getElementById('toggleBtn');
+    const controlPanel = document.getElementById('controlPanel');
+    const phraseInput = document.getElementById('phraseInput');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    const rotSlider = document.getElementById('rotSlider');
+    const rotVal = document.getElementById('rotVal');
+    const glowSlider = document.getElementById('glowSlider');
+    const glowVal = document.getElementById('glowVal');
+    const themeBtns = document.querySelectorAll('.theme-btn');
+
+    // Ribbon Configuration
+    let phrase = "I Love You!";
+    let animSpeed = 1.0;
+    let baseAngleY = -58 * Math.PI / 180; // The requested ~60 degree rotation
+    let baseAngleZ = 0;                   // Keep perfectly horizontal without Z tilt
+    let glowFactor = 1.0;
+    let currentTheme = 'rose';
+
+    // Interaction state
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragAngleY = 0;
+    let dragAngleZ = 0;
+
+    // Color themes definitions
+    const themes = {
+      rose: {
+        fill: (alpha) => `rgba(255, 160, 195, ${alpha})`,
+        stroke: (alpha) => `rgba(255, 70, 130, ${alpha * 0.5})`,
+        shadow: 'rgba(255, 105, 155, 0.8)',
+        accent: '#ff4d8d'
+      },
+      neon: {
+        fill: (alpha) => `rgba(140, 255, 255, ${alpha})`,
+        stroke: (alpha) => `rgba(0, 190, 255, ${alpha * 0.5})`,
+        shadow: 'rgba(0, 210, 255, 0.8)',
+        accent: '#00d2ff'
+      },
+      amber: {
+        fill: (alpha) => `rgba(255, 215, 140, ${alpha})`,
+        stroke: (alpha) => `rgba(255, 150, 0, ${alpha * 0.5})`,
+        shadow: 'rgba(255, 170, 0, 0.8)',
+        accent: '#ffaa00'
+      },
+      violet: {
+        fill: (alpha) => `rgba(215, 160, 255, ${alpha})`,
+        stroke: (alpha) => `rgba(150, 60, 255, ${alpha * 0.5})`,
+        shadow: 'rgba(180, 100, 255, 0.8)',
+        accent: '#b464ff'
+      }
+    };
+
+    // UI Event Listeners
+    toggleBtn.addEventListener('click', () => {
+      controlPanel.classList.toggle('hidden');
+      toggleBtn.innerHTML = controlPanel.classList.contains('hidden') ? '<span>✨ Customize Ribbon</span>' : '<span>✕ Close Panel</span>';
+    });
+
+    phraseInput.addEventListener('input', (e) => {
+      phrase = e.target.value || "I Love You!";
+      calculatePhraseMetrics();
+    });
+
+    speedSlider.addEventListener('input', (e) => {
+      animSpeed = parseFloat(e.target.value);
+      speedVal.textContent = animSpeed.toFixed(1) + 'x';
+    });
+
+    rotSlider.addEventListener('input', (e) => {
+      const deg = parseInt(e.target.value);
+      baseAngleY = deg * Math.PI / 180;
+      rotVal.textContent = deg + '°';
+    });
+
+    glowSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      glowFactor = val / 100;
+      glowVal.textContent = val + '%';
+    });
+
+    themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        themeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTheme = btn.dataset.theme;
+        document.documentElement.style.setProperty('--accent-color', themes[currentTheme].accent);
+      });
+    });
+
+    // Canvas Drag & Touch Interaction
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      dragAngleY = dx * 0.005;
+      dragAngleZ = dy * 0.005;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        baseAngleY += dragAngleY;
+        baseAngleZ += dragAngleZ;
+        dragAngleY = 0;
+        dragAngleZ = 0;
+        // Update slider to match
+        const currentDeg = Math.round(baseAngleY * 180 / Math.PI) % 360;
+        rotSlider.value = Math.max(-90, Math.min(90, currentDeg));
+        rotVal.textContent = rotSlider.value + '°';
+      }
+    });
+
+    // Touch support
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+      }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - dragStartX;
+      const dy = e.touches[0].clientY - dragStartY;
+      dragAngleY = dx * 0.005;
+      dragAngleZ = dy * 0.005;
+    });
+
+    window.addEventListener('touchend', () => {
+      if (isDragging) {
+        isDragging = false;
+        baseAngleY += dragAngleY;
+        baseAngleZ += dragAngleZ;
+        dragAngleY = 0;
+        dragAngleZ = 0;
+      }
+    });
+
+    // Heart Geometry & Path Setup
+    // We join the rectangular paper breadth to breadth.
+    // The length runs along the heart curve, the breadth is the text string itself.
+    let path = createHeartPath();
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let drawingScale = 1;
+    let lineStep = 1.2;
+    let baseFontSize = 18; // Increased font size for gorgeous, crisp legibility
+
+    function createHeartPath() {
+      const points = [];
+      const lengths = [0];
+      let totalLength = 0;
+      const pointCount = 1000;
+
+      for (let i = 0; i <= pointCount; i++) {
+        const t = (Math.PI * 2 * i) / pointCount;
+        const sin = Math.sin(t);
+        let x = 16 * Math.pow(sin, 3);
+        // Canvas Y is inverted, so negate Y to keep heart upright
+        let y = -(
+          13 * Math.cos(t)
+          - 5 * Math.cos(2 * t)
+          - 2 * Math.cos(3 * t)
+          - Math.cos(4 * t)
+        );
+
+        // Center the heart vertically around (0,0)
+        // y range is approx -11.2 to +17. Midpoint is ~2.9
+        y -= 2.9;
+
+        points.push({ x, y });
+      }
+
+      for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        totalLength += Math.hypot(curr.x - prev.x, curr.y - prev.y);
+        lengths.push(totalLength);
+      }
+
+      return { points, lengths, totalLength };
+    }
+
+    function calculatePhraseMetrics() {
+      // Calculate lineStep based on font line height so lines stack perfectly one below the other
+      const lineHeight = baseFontSize * 1.35;
+      lineStep = Math.max(0.8, lineHeight / drawingScale);
+    }
+
+    function resizeCanvas() {
+      const nextWidth = window.innerWidth;
+      const nextHeight = window.innerHeight;
+      const nextDpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      if (nextWidth === width && nextHeight === height && nextDpr === dpr) {
+        return;
+      }
+
+      width = nextWidth;
+      height = nextHeight;
+      dpr = nextDpr;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Scale heart to perfectly fit screen
+      drawingScale = Math.min(width, height) / 42;
+      baseFontSize = width < 620 ? 13 : 16;
+
+      calculatePhraseMetrics();
+    }
+
+    function samplePath(distance) {
+      const wrapped = ((distance % path.totalLength) + path.totalLength) % path.totalLength;
+      let low = 0;
+      let high = path.lengths.length - 1;
+
+      while (low < high) {
+        const mid = Math.floor((low + high) / 2);
+        if (path.lengths[mid] < wrapped) {
+          low = mid + 1;
+        } else {
+          high = mid;
+        }
+      }
+
+      const index = Math.max(1, low);
+      const before = path.points[index - 1];
+      const after = path.points[index];
+      const segStart = path.lengths[index - 1];
+      const segLen = Math.max(0.0001, path.lengths[index] - segStart);
+      const amount = (wrapped - segStart) / segLen;
+
+      return {
+        x: before.x + (after.x - before.x) * amount,
+        y: before.y + (after.y - before.y) * amount
+      };
+    }
+
+    function project(point, zOffset, angleY, angleZ) {
+      const scaledX = point.x * drawingScale;
+      const scaledY = point.y * drawingScale;
+      const scaledZ = zOffset * drawingScale;
+
+      // Rotate around Y axis (horizontal rotation)
+      const x1 = scaledX * Math.cos(angleY) + scaledZ * Math.sin(angleY);
+      const y1 = scaledY;
+      const z1 = -scaledX * Math.sin(angleY) + scaledZ * Math.cos(angleY);
+
+      // Rotate around Z axis (slight aesthetic tilt)
+      const x2 = x1 * Math.cos(angleZ) - y1 * Math.sin(angleZ);
+      const y2 = x1 * Math.sin(angleZ) + y1 * Math.cos(angleZ);
+      const z2 = z1;
+
+      const perspective = Math.max(width, height) * 1.35;
+      const depthScale = perspective / (perspective + z2);
+
+      return {
+        x: width * 0.5 + x2 * depthScale,
+        y: height * 0.5 + y2 * depthScale,
+        depth: z2,
+        scale: depthScale
+      };
+    }
+
+    function buildTextItems(scroll) {
+      const items = [];
+      const runLength = path.totalLength;
+      const currentAngleY = baseAngleY + dragAngleY;
+      const currentAngleZ = baseAngleZ + dragAngleZ;
+
+      // "one per line and align each line"
+      // We step along the heart curve. At each step, we have exactly ONE line of text.
+      for (let distance = 0; distance < runLength; distance += lineStep) {
+        const pathDistance = distance + scroll;
+        const sample = samplePath(pathDistance);
+        
+        // We project the point on the centerline (zOffset = 0)
+        const proj = project(sample, 0, currentAngleY, currentAngleZ);
+
+        items.push({
+          x: proj.x,
+          y: proj.y,
+          rotation: 0, // perfectly horizontal
+          depth: proj.depth,
+          size: Math.max(10, baseFontSize * proj.scale),
+          alpha: 0.9 * Math.min(1.1, proj.scale),
+          glow: (10 + proj.scale * 8) * glowFactor
+        });
+      }
+
+      // Painter's algorithm: sort from back to front (largest depth value is furthest away)
+      items.sort((a, b) => b.depth - a.depth);
+      return items;
+    }
+
+    let lastTime = performance.now();
+    let currentScroll = 0;
+
+    function draw(now) {
+      resizeCanvas();
+      
+      const delta = (now - lastTime) / 1000;
+      lastTime = now;
+
+      // Clear canvas with subtle trailing effect / solid clear
+      ctx.clearRect(0, 0, width, height);
+
+      // Advance scroll based on animation speed (moving like a rotating wheel)
+      currentScroll = (currentScroll + delta * animSpeed * 12) % path.totalLength;
+
+      const items = buildTextItems(currentScroll);
+      const theme = themes[currentTheme];
+
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "center";
+      ctx.lineJoin = "round";
+
+      items.forEach((item) => {
+        ctx.save();
+        ctx.translate(item.x, item.y);
+        ctx.rotate(item.rotation);
+        ctx.font = `700 ${item.size}px 'Outfit', sans-serif`;
+        
+        if (item.glow > 0) {
+          ctx.shadowColor = theme.shadow;
+          ctx.shadowBlur = item.glow;
+        }
+
+        ctx.strokeStyle = theme.stroke(item.alpha);
+        ctx.lineWidth = Math.max(1.0, item.size * 0.08);
+        ctx.fillStyle = theme.fill(item.alpha);
+
+        ctx.strokeText(phrase, 0, 0);
+        ctx.fillText(phrase, 0, 0);
+        ctx.restore();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

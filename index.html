@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAGE FOR HER</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="ambient" id="ambient"></div>
+
+<!-- Loading screen -->
+<div id="loader">
+  <h1 class="loader-heading">Happy Girlfriend's Day Sugar Plum!!!</h1>
+  <p class="loader-text">
+    Let's celebrate the best moments of our life
+  </p>
+  <div class="loader-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- Main content -->
+<div id="main-content">
+  <h1 class="main-heading">Happy Girlfriend's Day, Aishi</h1>
+
+  <div class="box">
+    <p class="paragraph">
+For my dear wifey (you js dont know it yet 😜), the sunshine to my life
+
+This is a little something i made to show my love and affection to you and appreciate your love for me, i really hope you like it 🥹🤧✨️🫶🏻
+    </p>
+
+    <p class="question">Would you like to view the gifts?</p>
+
+    <div class="play-area" id="playArea">
+      <span class="tease-text" id="teaseText"></span>
+      <button class="btn btn-yes" id="yesBtn" style="left:20px;top:40px;position:absolute;">Yes</button>
+      <button class="btn btn-no" id="noBtn" style="left:160px;top:40px;position:absolute;">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gifts window (macOS style) -->
+<div class="overlay hidden" id="giftsOverlay">
+  <div class="mac-window">
+    <div class="mac-topbar">
+      <div class="mac-dots"><span></span><span></span><span></span></div>
+      <span class="mac-title">gifts.exe</span>
+    </div>
+
+    <div class="mac-body" id="macBody">
+
+      <!-- App grid -->
+      <div class="app-grid" id="appGrid">
+        <div class="app-icon" data-app="letter">
+          <div class="icon">💌</div>
+          <span>letter.exe</span>
+        </div>
+        <div class="app-icon" data-app="music">
+          <div class="icon">🎵</div>
+          <span>music.exe</span>
+        </div>
+        <div class="app-icon" data-app="pics">
+          <div class="icon">🖼️</div>
+          <span>pics.exe</span>
+        </div>
+        <div class="app-icon" data-app="surprise">
+          <div class="icon">🎁</div>
+          <span>surprise.exe</span>
+        </div>
+      </div>
+
+      <!-- Letter app -->
+      <div class="mini-app hidden" id="letterApp">
+        <button class="back-btn">← Back</button>
+        <div class="letter-scroll">
+          <div id="letterContent"></div>
+        </div>
+      </div>
+
+      <!-- Music app -->
+      <div class="mini-app hidden" id="musicApp">
+        <button class="back-btn">← Back</button>
+        <div class="music-wrap">
+          <div class="vinyl" id="vinyl"></div>
+          <div class="song-title">🎵 Ishq Waala Love</div>
+          <audio id="songAudio" controls preload="none">
+            <source src="assets/song.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+          </audio>
+          <p style="font-size:0.78rem;color:#9a8a9e;text-align:center;max-width:260px;">
+            Add your own audio file at <code>assets/song.mp3</code> to enable playback.
+          </p>
+        </div>
+      </div>
+
+      <!-- Pictures app -->
+      <div class="mini-app hidden" id="picsApp">
+        <button class="back-btn">← Back</button>
+        <div class="collage">
+          <img src="assets/image1.jpeg" class="span-2" alt="memory 1">
+          <img src="assets/image2.jpeg" alt="memory 2">
+          <img src="assets/image3.jpeg" alt="memory 3">
+          <img src="assets/image4.jpeg" alt="memory 4">
+          <img src="assets/image5.jpeg" class="span-2" alt="memory 5">
+        </div>
+      </div>
+
+      <!-- Image modal -->
+      <div class="img-modal hidden" id="imgModal">
+        <img id="modalImg" src="" alt="preview">
+        <button class="back-btn" id="modalBackBtn">← Back</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
